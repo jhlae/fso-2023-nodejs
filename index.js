@@ -1,7 +1,8 @@
 const express = require("express");
 const app = express();
+app.use(express.json());
 
-const persons = [
+let persons = [
   {
     name: "Arto Hellas",
     number: "040-123456",
@@ -28,14 +29,49 @@ app.get("/", (req, res) => {
   res.send("<h1>Hello World :)</h1>");
 });
 
+/* 
+Operations for phonebook
+*/
+
 app.get("/api/persons", (req, res) => {
-  res.json(persons);
+  persons ? res.json(persons) : res.status(404).end();
 });
 
 app.get("/api/persons/:id", (req, res) => {
   const id = Number(req.params.id);
   const person = persons.find((person) => person.id === id);
   person ? res.json(person) : res.status(404).end();
+});
+
+app.delete("/api/persons/:id", (req, res) => {
+  const id = Number(req.params.id);
+  persons = persons.filter((person) => person.id !== id);
+  res.status(204).end();
+});
+
+const generateRandId = () => {
+  const maxID =
+    persons.length > 0 ? Math.max(...persons.map((person) => person.id)) : 0;
+  return maxID + 1;
+};
+
+app.post("/api/persons", (req, res) => {
+  const body = req.body;
+
+  if (!res.json(body)) {
+    return res.status(400).json({
+      error: "person is missing",
+    });
+  }
+
+  const person = {
+    name: res.json(body.name),
+    number: res.json(body.number),
+    id: generateRandId(),
+  };
+
+  persons = persons.concat(person);
+  res.json(person);
 });
 
 app.get("/info", (req, res) => {
