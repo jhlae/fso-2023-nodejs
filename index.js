@@ -58,20 +58,29 @@ const generateRandId = () => {
 app.post("/api/persons", (req, res) => {
   const body = req.body;
 
-  if (!res.json(body)) {
+  if (!body.name || !body.number) {
     return res.status(400).json({
       error: "person is missing",
     });
   }
 
   const person = {
-    name: res.json(body.name),
-    number: res.json(body.number),
+    name: body.name,
+    number: body.number,
     id: generateRandId(),
   };
 
-  persons = persons.concat(person);
-  res.json(person);
+  const checkDuplicate = persons.find((p) => p.name === person.name);
+  // console.log(checkDuplicate);
+  if (checkDuplicate) {
+    return res.status(400).json({
+      error: "name must be unique",
+    });
+  } else {
+    persons = persons.concat(person);
+  }
+
+  res.json(persons);
 });
 
 app.get("/info", (req, res) => {
