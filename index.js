@@ -1,10 +1,12 @@
 const express = require("express");
 var morgan = require("morgan");
+const cors = require("cors");
 
 const app = express();
 
 app.use(express.json());
 app.use(morgan("tiny"));
+app.use(cors());
 
 let persons = [
   {
@@ -67,7 +69,6 @@ app.post("/api/persons", (req, res) => {
       error: "person is missing",
     });
   }
-
   const person = {
     name: body.name,
     number: body.number,
@@ -83,6 +84,7 @@ app.post("/api/persons", (req, res) => {
   } else {
     persons = persons.concat(person);
   }
+  console.log(persons);
 
   res.json(persons);
 });
@@ -109,7 +111,7 @@ morgan(function (tokens, req, res) {
   ].join(" ");
 });
 
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
