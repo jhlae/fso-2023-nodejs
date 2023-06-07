@@ -1,6 +1,7 @@
 const express = require("express");
 var morgan = require("morgan");
 const cors = require("cors");
+const PhonebookEntry = require("./models/phonebookentry");
 
 const app = express();
 
@@ -40,8 +41,11 @@ app.get("/", (req, res) => {
 Operations for phonebook
 */
 
+// Get all entries from db
 app.get("/api/persons", (req, res) => {
-  persons ? res.json(persons) : res.status(404).end();
+  PhonebookEntry.find({}).then((person) => {
+    res.json(person);
+  });
 });
 
 app.get("/api/persons/:id", (req, res) => {
@@ -88,6 +92,10 @@ app.post("/api/persons", (req, res) => {
   console.log(persons);
 
   res.json(persons);
+
+  // person.save().then((savedNote) => {
+  //   response.json(savedNote);
+  // });
 });
 
 app.get("/info", (req, res) => {
@@ -112,7 +120,7 @@ morgan(function (tokens, req, res) {
   ].join(" ");
 });
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
