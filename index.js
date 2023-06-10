@@ -17,42 +17,33 @@ app.get("/", (req, res) => {
 Operations for phonebook
 */
 
-// const generateRandId = () => {
-//   const maxID =
-//     persons.length > 0 ? Math.max(...persons.map((person) => person.id)) : 0;
-//   return maxID + 1;
-// };
-
 // Get all entries from db
-app.get("/api/persons", (req, res) => {
+app.get("/api/persons", (req, res, next) => {
   PhonebookEntry.find({}).then((person) => {
     res.json(person);
   });
 });
 
-app.get("/api/persons/:id", (req, res) => {
-  const id = Number(req.params.id);
-  const person = persons.find((person) => person.id === id);
-  person ? res.json(person) : res.status(404).end();
+app.delete("/api/persons/:id", (req, res, next) => {
+  PhonebookEntry.findByIdAndRemove(req.params.id)
+    .then((result) => {
+      res.status(204).end();
+    })
+    .catch((error) => next(error));
 });
 
-app.delete("/api/persons/:id", (req, res) => {
-  const id = Number(req.params.id);
-  persons = persons.filter((person) => person.id !== id);
-  res.status(204).end();
-});
-
-app.post("/api/persons", (req, res) => {
+app.post("/api/persons", (req, res, next) => {
   const body = req.body;
-
   const person = new PhonebookEntry({
     name: body.name,
     number: body.number,
   });
-
-  person.save().then((savedEntry) => {
-    res.json(savedEntry);
-  });
+  person
+    .save()
+    .then((savedEntry) => {
+      res.json(savedEntry);
+    })
+    .catch((error) => next(error));
 });
 
 app.get("/info", (req, res) => {
@@ -66,16 +57,17 @@ app.get("/info", (req, res) => {
 });
 
 morgan(function (tokens, req, res) {
-  return [
-    tokens.method(req, res),
-    tokens.url(req, res),
-    tokens.status(req, res),
-    tokens.res(req, res, "content-length"),
-    "-",
-    tokens["response-time"](req, res),
-    "ms",
-  ].join(" ");
+  return [tokens.method(req, res),tokens.url(req, res),tokens.status(req, res),tokens.res(req, res, "content-length")," / ",tokens["response-time"](req, res),"ms",].join(" ");
 });
+
+const errorHandler = (error, req, res, next) => {
+  console.error(error.message);
+  if (error.name === "CastError") {
+    return res.status(400).send({ error: "malformatted id" });
+  }
+  next(error);
+};
+app.use(errorHandler);
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
