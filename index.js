@@ -34,6 +34,7 @@ app.delete("/api/persons/:id", (req, res, next) => {
 
 app.post("/api/persons", (req, res, next) => {
   const body = req.body;
+
   const person = new PhonebookEntry({
     name: body.name,
     number: body.number,
@@ -57,14 +58,25 @@ app.get("/info", (req, res) => {
 });
 
 morgan(function (tokens, req, res) {
-  return [tokens.method(req, res),tokens.url(req, res),tokens.status(req, res),tokens.res(req, res, "content-length")," / ",tokens["response-time"](req, res),"ms",].join(" ");
+  return [
+    tokens.method(req, res),
+    tokens.url(req, res),
+    tokens.status(req, res),
+    tokens.res(req, res, "content-length"),
+    " / ",
+    tokens["response-time"](req, res),
+    "ms",
+  ].join(" ");
 });
 
 const errorHandler = (error, req, res, next) => {
   console.error(error.message);
   if (error.name === "CastError") {
     return res.status(400).send({ error: "malformatted id" });
+  } else if (error.name === "ValidationError") {
+    return res.status(400).json({ error: error.message });
   }
+
   next(error);
 };
 app.use(errorHandler);
