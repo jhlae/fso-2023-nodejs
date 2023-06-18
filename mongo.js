@@ -32,7 +32,8 @@ if (process.argv.length < 4) {
 }
 
 if (process.argv.length > 3) {
-  entry.save().then((result) => {
+  entry.save().then((res) => {
+    console.log(res);
     console.log(
       "added " + personName + " number " + phoneNumber + " to phonebook."
     );

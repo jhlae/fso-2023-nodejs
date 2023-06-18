@@ -17,8 +17,6 @@ const phoneBookSchema = new mongoose.Schema({
   number: String,
 });
 
-const PhonebookEntry = mongoose.model("PhonebookEntry", phoneBookSchema);
-
 phoneBookSchema.set("toJSON", {
   transform: (document, returnedObject) => {
     returnedObject.id = returnedObject._id.toString();

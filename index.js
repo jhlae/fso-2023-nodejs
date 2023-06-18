@@ -18,7 +18,7 @@ Operations for phonebook
 */
 
 // Get all entries from db
-app.get("/api/persons", (req, res, next) => {
+app.get("/api/persons", (req, res) => {
   PhonebookEntry.find({}).then((person) => {
     res.json(person);
   });
@@ -26,7 +26,8 @@ app.get("/api/persons", (req, res, next) => {
 
 app.delete("/api/persons/:id", (req, res, next) => {
   PhonebookEntry.findByIdAndRemove(req.params.id)
-    .then((result) => {
+    .then((response) => {
+      console.log(response);
       res.status(204).end();
     })
     .catch((error) => next(error));
@@ -45,16 +46,6 @@ app.post("/api/persons", (req, res, next) => {
       res.json(savedEntry);
     })
     .catch((error) => next(error));
-});
-
-app.get("/info", (req, res) => {
-  var dateTime = new Date();
-  res.send(
-    "<p>Phonebook includes info for " +
-      persons.length +
-      " people. </p><p>" +
-      dateTime
-  );
 });
 
 morgan(function (tokens, req, res) {
